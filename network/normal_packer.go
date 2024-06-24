@@ -26,8 +26,8 @@ func (p *NormalPacker) Pack(message *Message) ([]byte, error) {
 	return buffer, nil
 }
 
-func (p *NormalPacker) UnPack(reader io.Reader) (*Message, error) {
-	err := reader.(*net.TCPConn).SetReadDeadline(time.Now().Add(time.Second))
+func (p *NormalPacker) Unpack(reader io.Reader) (*Message, error) {
+	err := reader.(*net.TCPConn).SetReadDeadline(time.Now().Add(time.Second * 5))
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (p *NormalPacker) UnPack(reader io.Reader) (*Message, error) {
 		return nil, err
 	}
 	msg := &Message{
-		Id: id,
+		Id:   id,
 		Data: dataBuffer,
 	}
 	return msg, nil

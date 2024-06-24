@@ -7,11 +7,11 @@ import (
 
 type Server struct {
 	listener net.Listener
-	address  string
 	network  string
+	address  string
 }
 
-func NewServer(network string, address string) *Server {
+func NewServer(network, address string) *Server {
 	return &Server{
 		listener: nil,
 		network:  network,
@@ -20,12 +20,12 @@ func NewServer(network string, address string) *Server {
 }
 
 func (s *Server) Run() {
-	addr, err := net.ResolveTCPAddr(s.network, s.address)
+	resolveTCPAddr, err := net.ResolveTCPAddr(s.network, s.address)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	tcpListener, err := net.ListenTCP(s.network, addr)
+	tcpListener, err := net.ListenTCP(s.network, resolveTCPAddr)
 	if err != nil {
 		fmt.Println(err)
 		return

@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	client := network.NewClient(":8023")
+	client := network.NewClient("127.0.0.1:8023")
 	client.Run()
 	select {}
 }

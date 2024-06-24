@@ -8,15 +8,15 @@ import (
 )
 
 type Session struct {
-	conn   net.Conn
-	packer *NormalPacker
+	conn    net.Conn
+	packer  *NormalPacker
 	chWrite chan *Message
 }
 
 func NewSession(conn net.Conn) *Session {
 	return &Session{
-		conn: conn,
-		packer: NewNormalPacker(binary.BigEndian),
+		conn:    conn,
+		packer:  NewNormalPacker(binary.BigEndian),
 		chWrite: make(chan *Message, 1),
 	}
 }
@@ -28,18 +28,18 @@ func (s *Session) Run() {
 }
 
 func (s *Session) Read() {
-	err := s.conn.SetReadDeadline(time.Now().Add(time.Second))
+	err := s.conn.SetReadDeadline(time.Now().Add(time.Second * 5))
 	if err != nil {
 		fmt.Println(err)
 	}
 	for {
-		message, err := s.packer.UnPack(s.conn)
+		message, err := s.packer.Unpack(s.conn)
 		if err != nil {
 			fmt.Println(err)
 		}
 		fmt.Println("Server receive message: ", string(message.Data))
 		s.chWrite <- &Message{
-			Id: 999,
+			Id:   999,
 			Data: []byte("Hello"),
 		}
 	}
@@ -48,9 +48,9 @@ func (s *Session) Read() {
 func (s *Session) Write() {
 	for {
 		select {
-			case msg := <-s.chWrite:
-				s.send(msg)
-			}
+		case msg := <-s.chWrite:
+			s.send(msg)
+		}
 	}
 }
 

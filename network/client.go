@@ -15,14 +15,14 @@ type Client struct {
 func NewClient(address string) *Client {
 	return &Client{
 		Address: address,
-		packer:  NormalPacker{
+		packer: NormalPacker{
 			Order: binary.BigEndian,
 		},
 	}
 }
 
 func (c *Client) Run() {
-	conn, err := net.Dial("tcp6", c.Address)
+	conn, err := net.Dial("tcp", c.Address)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -45,7 +45,7 @@ func (c *Client) Write(conn net.Conn) {
 }
 
 func (c *Client) send(conn net.Conn, message *Message) {
-	err := conn.SetWriteDeadline(time.Now().Add(time.Second))
+	err := conn.SetWriteDeadline(time.Now().Add(time.Second * 5))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -63,7 +63,7 @@ func (c *Client) send(conn net.Conn, message *Message) {
 
 func (c *Client) Read(conn net.Conn) {
 	for {
-		message, err := c.packer.UnPack(conn)
+		message, err := c.packer.Unpack(conn)
 		if _, ok := err.(net.Error); err != nil && ok {
 			fmt.Println(err)
 			continue
