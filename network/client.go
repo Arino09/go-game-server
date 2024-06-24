@@ -27,6 +27,7 @@ func (c *Client) Run() {
 		fmt.Println(err)
 		return
 	}
+	fmt.Println("Connected to server")
 	go c.Write(conn)
 	go c.Read(conn)
 }
@@ -45,7 +46,7 @@ func (c *Client) Write(conn net.Conn) {
 }
 
 func (c *Client) send(conn net.Conn, message *Message) {
-	err := conn.SetWriteDeadline(time.Now().Add(time.Second * 5))
+	err := conn.SetWriteDeadline(time.Now().Add(time.Second * 2))
 	if err != nil {
 		fmt.Println(err)
 		return

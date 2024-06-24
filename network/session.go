@@ -28,7 +28,7 @@ func (s *Session) Run() {
 }
 
 func (s *Session) Read() {
-	err := s.conn.SetReadDeadline(time.Now().Add(time.Second * 5))
+	err := s.conn.SetReadDeadline(time.Now().Add(time.Second * 2))
 	if err != nil {
 		fmt.Println(err)
 	}

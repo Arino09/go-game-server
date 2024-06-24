@@ -20,6 +20,7 @@ func NewServer(network, address string) *Server {
 }
 
 func (s *Server) Run() {
+	fmt.Println("Listening on " + s.network + ":" + s.address)
 	resolveTCPAddr, err := net.ResolveTCPAddr(s.network, s.address)
 	if err != nil {
 		fmt.Println(err)
@@ -39,6 +40,7 @@ func (s *Server) Run() {
 				continue
 			}
 			go func() {
+				fmt.Println("New connection from " + conn.RemoteAddr().String())
 				session := NewSession(conn)
 				session.Run()
 			}()

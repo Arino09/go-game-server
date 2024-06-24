@@ -25,4 +25,3 @@ func (p *Player) ResolveChatMsg(data interface{}) {
 	fmt.Println(chatMsg)
 	// TODO 收到消息 转发给客户端
 }
-
