@@ -1,6 +1,6 @@
 package define
 
-type HandlerParamCh struct {
+type HandlerParam struct {
 	HandlerKey string
 	Data       interface{}
 }

@@ -4,6 +4,16 @@ package player;
 
 option go_package = "/player";
 
+message CSCreateUser {
+  string UserName = 1;
+  string Password = 2;
+}
+
+message SCCreateUser {
+
+}
+
+
 message CSLogin {
   uint64 UId = 1;
 }

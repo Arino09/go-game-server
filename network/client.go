@@ -8,16 +8,19 @@ import (
 )
 
 type Client struct {
-	Address string
-	packer  NormalPacker
+	Address   string
+	packer    IPacker
+	ChMsg     chan *Message
+	OnMessage func(message *ClientPacket)
 }
 
 func NewClient(address string) *Client {
 	return &Client{
 		Address: address,
-		packer: NormalPacker{
-			Order: binary.BigEndian,
+		packer: &NormalPacker{
+			ByteOrder: binary.BigEndian,
 		},
+		ChMsg: make(chan *Message, 1),
 	}
 }
 
@@ -37,38 +40,36 @@ func (c *Client) Write(conn net.Conn) {
 	for {
 		select {
 		case <-tick.C:
-			c.send(conn, &Message{
-				Id:   111,
+			c.Send(conn, &Message{
+				ID:   111,
 				Data: []byte("Hello world!"),
 			})
+		case msg := <-c.ChMsg:
+			c.Send(conn, msg)
 		}
 	}
 }
 
-func (c *Client) send(conn net.Conn, message *Message) {
-	err := conn.SetWriteDeadline(time.Now().Add(time.Second * 2))
+func (c *Client) Send(conn net.Conn, message *Message) {
+	pack, err := c.packer.Pack(message)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	bytes, err := c.packer.Pack(message)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	_, err = conn.Write(bytes)
-	if err != nil {
-		fmt.Println(err)
-	}
+	conn.Write(pack)
 }
 
 func (c *Client) Read(conn net.Conn) {
 	for {
 		message, err := c.packer.Unpack(conn)
-		if _, ok := err.(net.Error); err != nil && ok {
+		if err != nil {
 			fmt.Println(err)
 			continue
 		}
+		c.OnMessage(&ClientPacket{
+			Msg:  message,
+			Conn: conn,
+		})
 		fmt.Println("Client receive message: ", string(message.Data))
 	}
 }

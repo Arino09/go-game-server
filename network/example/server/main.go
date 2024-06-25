@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	server := network.NewServer("tcp", ":8023")
+	server := network.NewServer(":8023")
 	server.Run()
 	select {}
 }

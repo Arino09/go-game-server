@@ -6,44 +6,39 @@ import (
 )
 
 type Server struct {
-	listener net.Listener
-	network  string
-	address  string
+	tcpListener     net.Listener
+	OnSessionPacket func(packet *SessionPacket)
 }
 
-func NewServer(network, address string) *Server {
-	return &Server{
-		listener: nil,
-		network:  network,
-		address:  address,
+func NewServer(address string) *Server {
+	resolveTCPAddr, err := net.ResolveTCPAddr("tcp", address)
+	if err != nil {
+		panic(err)
 	}
+	tcpListener, err := net.ListenTCP("tcp", resolveTCPAddr)
+	if err != nil {
+		panic(err)
+	}
+	s := &Server{
+		tcpListener: tcpListener,
+	}
+	return s
 }
 
 func (s *Server) Run() {
-	fmt.Println("Listening on " + s.network + ":" + s.address)
-	resolveTCPAddr, err := net.ResolveTCPAddr(s.network, s.address)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	tcpListener, err := net.ListenTCP(s.network, resolveTCPAddr)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	s.listener = tcpListener
-	go func() {
-		for {
-			conn, err := s.listener.Accept()
-			if err != nil {
-				fmt.Println(err)
+	for {
+		conn, err := s.tcpListener.Accept()
+		if err != nil {
+			if _, ok := err.(net.Error); ok {
 				continue
 			}
-			go func() {
-				fmt.Println("New connection from " + conn.RemoteAddr().String())
-				session := NewSession(conn)
-				session.Run()
-			}()
 		}
-	}()
+		go func() {
+			fmt.Println("New connection from " + conn.RemoteAddr().String())
+			newSession := NewSession(conn)
+			SessionMgrInstance.AddSession(newSession)
+			newSession.Run()
+			SessionMgrInstance.DelSession(newSession)
+		}()
+	}
 }
