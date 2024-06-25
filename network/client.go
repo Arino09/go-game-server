@@ -40,10 +40,10 @@ func (c *Client) Write(conn net.Conn) {
 	for {
 		select {
 		case <-tick.C:
-			c.Send(conn, &Message{
-				ID:   111,
-				Data: []byte("Hello world!"),
-			})
+			//c.Send(conn, &Message{
+			//	ID:   111,
+			//	Data: []byte("Hello world!"),
+			//})
 		case msg := <-c.ChMsg:
 			c.Send(conn, msg)
 		}
@@ -63,7 +63,6 @@ func (c *Client) Read(conn net.Conn) {
 	for {
 		message, err := c.packer.Unpack(conn)
 		if err != nil {
-			fmt.Println(err)
 			continue
 		}
 		c.OnMessage(&ClientPacket{

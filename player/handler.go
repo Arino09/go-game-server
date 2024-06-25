@@ -8,11 +8,11 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-type Handler func(*network.SessionPacket)
+type Handler func(message *network.Message)
 
-func (p *Player) AddFriend(packet *network.SessionPacket) {
+func (p *Player) AddFriend(message *network.Message) {
 	req := &player.CSAddFriend{}
-	err := proto.Unmarshal(packet.Msg.Data, req)
+	err := proto.Unmarshal(message.Data, req)
 	if err != nil {
 		return
 	}
@@ -21,18 +21,18 @@ func (p *Player) AddFriend(packet *network.SessionPacket) {
 	}
 }
 
-func (p *Player) DelFriend(packet *network.SessionPacket) {
+func (p *Player) DelFriend(message *network.Message) {
 	req := &player.CSDelFriend{}
-	err := proto.Unmarshal(packet.Msg.Data, req)
+	err := proto.Unmarshal(message.Data, req)
 	if err != nil {
 		return
 	}
 	p.FriendList = function.DelOneInSlice(req.UId, p.FriendList)
 }
 
-func (p *Player) ResolveChatMsg(packet *network.SessionPacket) {
+func (p *Player) ResolveChatMsg(message *network.Message) {
 	req := &player.CSSendChatMsg{}
-	err := proto.Unmarshal(packet.Msg.Data, req)
+	err := proto.Unmarshal(message.Data, req)
 	if err != nil {
 		return
 	}

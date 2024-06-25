@@ -8,7 +8,7 @@ import (
 type Player struct {
 	UId            uint64
 	FriendList     []uint64 // 好友列表
-	HandlerParamCh chan *network.SessionPacket
+	HandlerParamCh chan *network.Message
 	handlers       map[messageId.MessageId]Handler
 	session        *network.Session
 }
@@ -28,7 +28,7 @@ func (p *Player) Run() {
 	for {
 		select {
 		case handlerParam := <-p.HandlerParamCh:
-			if fn, ok := p.handlers[messageId.MessageId(handlerParam.Msg.ID)]; ok {
+			if fn, ok := p.handlers[messageId.MessageId(handlerParam.ID)]; ok {
 				fn(handlerParam)
 			}
 		}

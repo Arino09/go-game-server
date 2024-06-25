@@ -15,7 +15,8 @@ message SCCreateUser {
 
 
 message CSLogin {
-  uint64 UId = 1;
+  string UserName = 1;
+  string Password = 2;
 }
 
 message SCLogin {
@@ -46,6 +47,7 @@ message CSSendChatMsg {
 }
 
 message SCSendChatMsg {
+
 }
 
 message ChatMessage {

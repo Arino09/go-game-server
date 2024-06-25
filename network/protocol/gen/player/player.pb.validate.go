@@ -258,7 +258,9 @@ func (m *CSLogin) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for UId
+	// no validation rules for UserName
+
+	// no validation rules for Password
 
 	if len(errors) > 0 {
 		return CSLoginMultiError(errors)

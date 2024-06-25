@@ -3,57 +3,129 @@ package main
 import (
 	"fmt"
 	"go-game-server/network"
+	"go-game-server/network/protocol/gen/player"
+	"google.golang.org/protobuf/proto"
+	"strconv"
 )
 
 type MessageHandler func(packet *network.ClientPacket)
 
 type InputHandler func(param *InputParam)
 
+// CreatePlayer 创建角色
 func (c *Client) CreatePlayer(param *InputParam) {
-	//id := c.GetMessageIdByCmd(param.Command)
-	//if len(param.Param) != 2 {
-	//    return
-	//}
-	//msg := &player.CSCreateUser{
-	//    UserName: param.Param[0],
-	//    Password: param.Param[1],
-	//}
-	//c.cli.ChMsg <- &network.Message{}
+	id := c.GetMessageIdByCmd(param.Command)
+
+	if len(param.Param) != 2 {
+		return
+	}
+
+	msg := &player.CSCreateUser{
+		UserName: param.Param[0],
+		Password: param.Param[1],
+	}
+	c.Transport(id, msg)
 }
 
 func (c *Client) OnCreatePlayerRsp(packet *network.ClientPacket) {
-
+	fmt.Println("角色创建成功！")
 }
 
 func (c *Client) Login(param *InputParam) {
-	fmt.Printf("Login input handler print: ")
-	fmt.Println(param.Command)
-	fmt.Println(param.Param)
+	id := c.GetMessageIdByCmd(param.Command)
+
+	if len(param.Param) != 2 {
+		return
+	}
+
+	msg := &player.CSLogin{
+		UserName: param.Param[0],
+		Password: param.Param[1],
+	}
+	c.Transport(id, msg)
 }
 
 func (c *Client) OnLoginRsp(packet *network.ClientPacket) {
+	rsp := &player.SCLogin{}
 
+	err := proto.Unmarshal(packet.Msg.Data, rsp)
+	if err != nil {
+		return
+	}
+
+	fmt.Println("登录成功！")
 }
 func (c *Client) AddFriend(param *InputParam) {
+	id := c.GetMessageIdByCmd(param.Command)
 
+	if len(param.Param) != 1 || len(param.Param[0]) == 0 {
+		return
+	}
+
+	parseUint, err := strconv.ParseUint(param.Param[0], 10, 64)
+	if err != nil {
+		return
+	}
+
+	msg := &player.CSAddFriend{
+		UId: parseUint,
+	}
+	c.Transport(id, msg)
 }
 
 func (c *Client) OnAddFriendRsp(packet *network.ClientPacket) {
-
+	fmt.Println("好友添加成功！")
 }
 
 func (c *Client) DelFriend(param *InputParam) {
+	id := c.GetMessageIdByCmd(param.Command)
 
+	if len(param.Param) != 1 || len(param.Param[0]) == 0 {
+		return
+	}
+
+	parseUint, err := strconv.ParseUint(param.Param[0], 10, 64)
+	if err != nil {
+		return
+	}
+
+	msg := &player.CSDelFriend{
+		UId: parseUint,
+	}
+	c.Transport(id, msg)
 }
 
 func (c *Client) OnDelFriendRsp(packet *network.ClientPacket) {
-
+	fmt.Println("好友删除成功！")
 }
 
 func (c *Client) SendChatMsg(param *InputParam) {
+	id := c.GetMessageIdByCmd(param.Command)
 
+	if len(param.Param) != 3 {
+		return
+	}
+
+	parseUint, err := strconv.ParseUint(param.Param[0], 10, 64)
+	if err != nil {
+		return
+	}
+	parseInt32, err := strconv.ParseInt(param.Param[2], 10, 32)
+	if err != nil {
+		return
+	}
+
+	msg := &player.CSSendChatMsg{
+		UId: parseUint,
+		Msg: &player.ChatMessage{
+			Content: param.Param[1],
+			Extra:   nil,
+		},
+		Category: int32(parseInt32),
+	}
+	c.Transport(id, msg)
 }
 
 func (c *Client) OnSendChatMsgRsp(packet *network.ClientPacket) {
-
+	fmt.Println("消息已送达！")
 }

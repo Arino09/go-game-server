@@ -3,12 +3,13 @@ package world
 import (
 	"go-game-server/manager"
 	"go-game-server/network"
+	"go-game-server/network/protocol/gen/messageId"
 )
 
 type MgrMgr struct {
 	Pm              *manager.PlayerMgr
 	Server          *network.Server
-	Handlers        map[uint64]func(message *network.SessionPacket)
+	Handlers        map[messageId.MessageId]func(message *network.SessionPacket)
 	chSessionPacket chan *network.SessionPacket
 }
 
@@ -26,8 +27,11 @@ func (mm *MgrMgr) Run() {
 	go mm.Pm.Run()
 }
 
-func (mm *MgrMgr) OnSessionPacket(message *network.SessionPacket) {
-	if handler, ok := mm.Handlers[message.Msg.ID]; ok {
-		handler(message)
+func (mm *MgrMgr) OnSessionPacket(packet *network.SessionPacket) {
+	if handler, ok := mm.Handlers[messageId.MessageId(packet.Msg.ID)]; ok {
+		handler(packet)
+	}
+	if p := mm.Pm.GetPlayer(packet.Sess.UId); p != nil {
+		p.HandlerParamCh <- packet.Msg
 	}
 }

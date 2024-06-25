@@ -3,7 +3,7 @@ package network
 import "sync"
 
 type SessionMgr struct {
-	Sessions map[int64]*Session
+	Sessions map[uint64]*Session
 	Counter  int64 // 计数器
 	Mutex    sync.Mutex
 	Pid      int64
@@ -17,7 +17,7 @@ var (
 func init() {
 	onceInitSessionMgr.Do(func() {
 		SessionMgrInstance = SessionMgr{
-			Sessions: make(map[int64]*Session),
+			Sessions: make(map[uint64]*Session),
 			Counter:  0,
 			Mutex:    sync.Mutex{},
 		}
